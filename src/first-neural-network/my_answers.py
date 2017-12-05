@@ -128,6 +128,6 @@ class NeuralNetwork(object):
 # Set your hyperparameters here
 ##########################################################
 iterations = 10000
-learning_rate = 0.04
+learning_rate = 0.43
 hidden_nodes = 8
 output_nodes = 1  # Why is this even a variable since the network is used for regression...?
