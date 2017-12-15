@@ -1,0 +1,3 @@
+[submodule "src/projects/dog-breed-classification"]
+	path = src/projects/dog-breed-classification
+	url = https://github.com/Chouffe/udacity-nanodegree-deeplearning-foundation-dog-p2.git
