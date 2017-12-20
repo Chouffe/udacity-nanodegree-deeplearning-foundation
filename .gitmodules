@@ -4,6 +4,6 @@
 [submodule "src/keras-tutorials"]
 	path = src/keras-tutorials
 	url = https://github.com/Chouffe/keras-tutorials
-[submodule "src/projects/dermatologist-ai"]
-	path = src/projects/dermatologist-ai
-	url = https://github.com/udacity/dermatologist-ai
+[submodule "src/projects/dermatologist"]
+	path = src/projects/dermatologist
+	url = https://github.com/Chouffe/udacity-nanodegree-deeplearning-foundation-dermatologist
