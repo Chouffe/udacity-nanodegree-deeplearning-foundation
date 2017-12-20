@@ -2,3 +2,5 @@
 __pycache__/
 .ipynb_checkpoints/
 .udacity-pa/
+src/transfer-learning/labels
+src/transfer-learning/codes
