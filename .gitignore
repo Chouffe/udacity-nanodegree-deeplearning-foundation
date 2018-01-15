@@ -4,3 +4,5 @@ __pycache__/
 .udacity-pa/
 src/transfer-learning/labels
 src/transfer-learning/codes
+src/embeddings/data/text8
+src/embeddings/text8.zip
