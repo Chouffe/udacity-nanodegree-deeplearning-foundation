@@ -6,3 +6,8 @@ src/transfer-learning/labels
 src/transfer-learning/codes
 src/embeddings/data/text8
 src/embeddings/text8.zip
+src/tv-script-generation/dlnd_tv_script_generation.html
+src/tv-script-generation/params.p
+src/tv-script-generation/preprocess.p
+src/tv-script-generation/save.*
+src/tv-script-generation/checkpoint
