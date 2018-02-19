@@ -12,3 +12,6 @@ src/tv-script-generation/preprocess.p
 src/tv-script-generation/save.*
 src/tv-script-generation/checkpoint
 src/batch-norm/MNIST_data/
+src/face_generation/checkpoints/
+src/face_generation/data/
+
