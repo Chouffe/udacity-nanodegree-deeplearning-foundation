@@ -13,6 +13,8 @@
 * Use Leaky ReLU instead of ReLU
 * Use Batch Norm
 * To prevent the discriminator from being too strong as well as to help it generalise better the discriminator labels are reduced from 1 to 0.9. This is called label smoothing (one-sided). A possible TensorFlow implementation is `labels = tf.ones_like(tensor) * (1 - smooth)`
+* [Paper: Improved techniques for training GANs](https://arxiv.org/pdf/1606.03498.pdf)
+* One can train twice the `generator` when the `discriminator` is trained once so that the discriminator loss does not go to zero
 
 ## Good Hyperparameters for DCGAN
 
