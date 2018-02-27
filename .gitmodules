@@ -7,3 +7,6 @@
 [submodule "src/projects/dermatologist"]
 	path = src/projects/dermatologist
 	url = https://github.com/Chouffe/udacity-nanodegree-deeplearning-foundation-dermatologist
+[submodule "src/openai/gym"]
+	path = src/openai/gym
+	url = https://github.com/openai/gym.git
