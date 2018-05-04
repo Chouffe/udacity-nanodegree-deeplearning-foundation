@@ -8,7 +8,7 @@ from utils import ReplayBuffer, OUNoise
 class Actor:
     """Actor (Policy) Model."""
 
-    def __init__(self, state_size, action_size, action_low, action_high):
+    def __init__(self, state_size, action_size, action_low, action_high, params={}):
         """Initialize parameters and build model.
 
         Params
@@ -23,6 +23,8 @@ class Actor:
         self.action_low = action_low
         self.action_high = action_high
         self.action_range = self.action_high - self.action_low
+        default_params = {'lr': .001}
+        self.params = {**default_params, **params}
 
         # Initialize any other variables here
 
@@ -60,7 +62,7 @@ class Actor:
         # Incorporate any additional losses here (e.g. from regularizers)
 
         # Define optimizer and training function
-        optimizer = optimizers.Adam()
+        optimizer = optimizers.Adam(self.params['lr'])
         updates_op = optimizer.get_updates(params=self.model.trainable_weights, loss=loss)
         self.train_fn = K.function(
             inputs=[self.model.input, action_gradients, K.learning_phase()],
@@ -71,7 +73,7 @@ class Actor:
 class Critic:
     """Critic (Value) Model."""
 
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, params={}):
         """Initialize parameters and build model.
 
         Params
@@ -81,6 +83,8 @@ class Critic:
         """
         self.state_size = state_size
         self.action_size = action_size
+        default_params = {'lr': .001}
+        self.params = {**default_params, **params}
 
         # Initialize any other variables here
 
@@ -118,7 +122,7 @@ class Critic:
         self.model = models.Model(inputs=[states, actions], outputs=Q_values)
 
         # Define optimizer and compile model for training with built-in loss function
-        optimizer = optimizers.Adam()
+        optimizer = optimizers.Adam(self.params['lr'])
         self.model.compile(optimizer=optimizer, loss='mse')
 
         # Compute action gradients (derivative of Q values w.r.t. to actions)
@@ -135,7 +139,30 @@ class DDPG():
     Reinforcement Learning agent that learns using DDPG.
     """
 
-    def __init__(self, task):
+    def __init__(
+            self,
+            task,
+            actor_params={},
+            critic_params={},
+            noise_params={},
+            replay_memory_params={},
+            algo_params = {}
+            ):
+
+        # Default Params
+        default_actor_params = {'lr': .001}
+        default_critic_params= {'lr': .001}
+        default_noise_params= {'mu': 0, 'theta': .15, 'sigma': .2}
+        default_replay_memory_params= {'buffer_size': 100000, 'batch_size': 64}
+        default_algo_params = {'gamma': .99, 'tau': .1}
+
+        # Final Params
+        final_actor_params= {**default_actor_params, **actor_params}
+        final_critic_params={**default_critic_params, **critic_params}
+        final_noise_params={**default_noise_params, **noise_params}
+        final_replay_memory_params={**default_replay_memory_params, **replay_memory_params, }
+        final_algo_params = {**default_algo_params, **algo_params}
+
         self.task = task
         self.state_size = task.state_size
         self.action_size = task.action_size
@@ -143,31 +170,35 @@ class DDPG():
         self.action_high = task.action_high
 
         # Actor (Policy) Model
-        self.actor_local = Actor(self.state_size, self.action_size, self.action_low, self.action_high)
-        self.actor_target = Actor(self.state_size, self.action_size, self.action_low, self.action_high)
+        self.actor_local = Actor(self.state_size, self.action_size, self.action_low, self.action_high, final_actor_params)
+        self.actor_target = Actor(self.state_size, self.action_size, self.action_low, self.action_high, final_actor_params)
 
         # Critic (Value) Model
-        self.critic_local = Critic(self.state_size, self.action_size)
-        self.critic_target = Critic(self.state_size, self.action_size)
+        self.critic_local = Critic(self.state_size, self.action_size, final_critic_params)
+        self.critic_target = Critic(self.state_size, self.action_size, final_critic_params)
 
         # Initialize target model parameters with local model parameters
         self.critic_target.model.set_weights(self.critic_local.model.get_weights())
         self.actor_target.model.set_weights(self.actor_local.model.get_weights())
 
         # Noise process
-        self.exploration_mu = 0
-        self.exploration_theta = 0.15
-        self.exploration_sigma = 0.2
-        self.noise = OUNoise(self.action_size, self.exploration_mu, self.exploration_theta, self.exploration_sigma)
+        self.noise = OUNoise(
+                self.action_size,
+                final_noise_params['mu'],
+                final_noise_params['theta'],
+                final_noise_params['sigma']
+                )
 
         # Replay memory
-        self.buffer_size = 100000
-        self.batch_size = 64
-        self.memory = ReplayBuffer(self.buffer_size, self.batch_size)
+        self.batch_size = final_replay_memory_params['batch_size']
+        self.memory = ReplayBuffer(
+                final_replay_memory_params['buffer_size'],
+                final_replay_memory_params['batch_size']
+                )
 
         # Algorithm parameters
-        self.gamma = 0.99  # discount factor
-        self.tau = 0.01  # for soft update of target parameters
+        self.gamma = final_algo_params['gamma']  # discount factor
+        self.tau = final_algo_params['tau']      # for soft update of target parameters
 
 
     def reset_episode(self):
