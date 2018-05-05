@@ -118,7 +118,8 @@ class TakeOffTask():
     def __init__(
             self,
             runtime=5.,
-            target_z_pos=10.
+            target_z_pos=10.,
+            init_pose=np.array([0., 0., 5., 0., 0., 0.])
             ):
         """Initialize a TakeOffTask object.
         Params
@@ -128,7 +129,7 @@ class TakeOffTask():
         """
         # Simulation
         self.sim = PhysicsSim(
-                init_pose=np.array([0., 0., 0., 0., 0., 0.]),
+                init_pose=init_pose,
                 init_velocities=None,
                 init_angle_velocities=None,
                 runtime=runtime
@@ -143,12 +144,24 @@ class TakeOffTask():
         # Goal
         self.target_z_pos = target_z_pos
 
-    def get_reward(self):
+    def get_reward(self, done):
         """Uses current pose of sim to return reward."""
-        z = self.sim.pose[3]
+        crash_reward = -1.
+
+        # Penalizes crash
+        if done and self.sim.time < self.sim.runtime:
+            return crash_reward
+
+        z = self.sim.pose[2]
+        vz = self.sim.v[2]
         target_z = self.target_z_pos
-        reward = 1. - .3 * np.linalg.norm(z - target_z)
-        return np.clip(reward, -1., 1.)
+
+        constant_reward = 1.
+        position_reward = -0.3 * np.linalg.norm(z - target_z)
+        velocity_reward = .5 if vz > 0. else -0.25
+        final_reward = constant_reward + position_reward + velocity_reward
+
+        return np.clip(final_reward, -1., 1.)
 
     def step(self, rotor_speeds):
         """Uses action to obtain next state, reward, done."""
@@ -156,7 +169,7 @@ class TakeOffTask():
         pose_all = []
         for _ in range(self.action_repeat):
             done = self.sim.next_timestep(rotor_speeds) # update the sim pose and velocities
-            reward += self.get_reward()
+            reward += self.get_reward(done)
             pose_all.append(self.sim.pose)
         next_state = np.concatenate(pose_all)
         return next_state, reward, done
